@@ -1,0 +1,109 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+        crossorigin="anonymous">
+
+    <style>
+        div.messagediv {
+            border: 1px solid #ccc;
+            background-image: 'assets/bgimage.jpg'
+        }
+        
+        div.messagediv p {
+            padding: 6px 12px;
+        }
+        
+        textarea {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .username {
+            width: 200px;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket;
+        function onloadbody() {
+            socket = io.connect();
+            socket.on('botmessage', function (data) {
+                console.log(data);
+                var messages = document.getElementById('messages');
+                var p = document.createElement('p');
+                var node = document.createTextNode(data.message);
+                p.appendChild(node);
+                messages.appendChild(p);
+            });
+        }
+
+        function sendmessage() {
+            var messagetext=document.getElementById('chatmessage');
+            var data = messagetext.value;
+            console.log(data);
+            socket.emit('sendmessage', { message: data });
+            messagetext.value = '';
+            return false;
+        }
+
+        function senduser() {
+            var usertext = document.getElementById('username');
+            var messageform =  document.getElementById('messageform');
+            var userform =  document.getElementById('userform');
+            console.log(usertext.value);
+            socket.emit('senduser', { user: usertext.value },function(success){
+                if(success){
+                    usertext.value = '';
+                    userform.setAttribute("hidden","");
+                    messageform.removeAttribute("hidden");
+                }
+                 return false;
+            });
+        }
+    </script>
+</head>
+
+<body class="container-fluid" onload="onloadbody()">
+
+    <div>
+        <h1>Welcome </h1>
+        <div class="row">
+            <div class="col-md-12">
+                <h4>ChatBox</h4>
+                <div class=" chat" id="chat">
+                    <form id="messageform" onsubmit="return sendmessage();" hidden>
+                        <div class="form-group">
+                            <div class="messagediv">
+                                <div class="messages" id="messages">
+                                </div>
+                                <textarea class="form-control" id="chatmessage" placeholder="click here to chat.." ></textarea>
+                            </div>
+                            <br/>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </div>
+                    </form>
+                    <form id="userform" onsubmit="senduser();return false;">
+                        <input type="text" class="form-control username" id="username" value="" placeholder="Enter username" />
+                        <br/>
+                        <button type="submit" class="btn btn-primary">Set</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+</body>
+
+</html>
