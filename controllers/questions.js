@@ -22,7 +22,7 @@ var db = mongoose.connect('mongodb://127.0.0.1:27017', null, function (err) {
 });
 
 
-var createQuestions = function (_question, answer, counter) {
+var createQuestions = function (_question, answer, counter,callback) {
     console.log(_question);
     var questions = [];
 
@@ -36,21 +36,11 @@ var createQuestions = function (_question, answer, counter) {
             counter: counter,
             nouns: ''
         };
-        console.log(result);
         var nouns = _.difference(result.nouns, result.adjectives);
-        question.nouns = nouns;
-        console.log(nouns);
+        question.nouns = _question.split(" ");;
         questions.push(question);
         var question = new Questions({ questions: questions });
-
-        question.save(function (err, data) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                console.log(data);
-            }
-        });
+        question.save(callback);
     });
 
 
@@ -58,19 +48,26 @@ var createQuestions = function (_question, answer, counter) {
 
 
 var fetchAnswers = function (noun) {
-    Questions.findOne({ 'questions': { $elemMatch: { nouns: {$in:noun} } } }, function (err, docs) {
+    Questions.find({ 'questions': { $elemMatch: { nouns: {$in:noun} } } }, function (err, docs) {
         if (err)
             console.log(err);
         else{
-            console.log(docs.questions[0].answer);
-            console.log(docs.questions[0].nouns[0]);
+            console.log(docs[0].questions);
         }
     });
 
 };
 
-createQuestions('what is a bear', 'nothing', 0);
-fetchAnswers(['bear','tiger']);
+createQuestions('what is a tiger', 'what is a tiger', 0,function(){
+ createQuestions('who does a tiger eat', 'who does a tiger eat', 0,function(){
+     createQuestions('who is the prime minister', 'who is the prime minister', 0,function(){
+         fetchAnswers(['tiger','who'])
+     });
+ });
+});
+
+
+
 
 
 exports.createQuestions = createQuestions;
