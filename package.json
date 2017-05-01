@@ -13,6 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "express":"*",
-    "socket.io":"*"
+    "socket.io":"*",
+    "mongoose": "*",
+    "wordpos":"*",
+    "underscore":"*"
   }
 }
