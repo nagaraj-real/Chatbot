@@ -36,8 +36,17 @@
     <script>
         var socket;
         function onloadbody() {
-            socket = io.connect();
+            socket = io.connect();  
             socket.on('botmessage', function (data) {
+                console.log(data);
+                var messages = document.getElementById('messages');
+                var p = document.createElement('p');
+                var node = document.createTextNode(data.botmessage);
+                p.appendChild(node);
+                messages.appendChild(p);
+            });
+
+             socket.on('humanmessage', function (data) {
                 console.log(data);
                 var messages = document.getElementById('messages');
                 var p = document.createElement('p');

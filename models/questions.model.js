@@ -27,7 +27,11 @@ var QuestionSchema = new Schema({
     type: Number,
     default: 0
   },
-  nouns: [String]
+  nonquestion:{
+    type:Boolean,
+    default:false
+  },
+  words: String
 });
 
 /**

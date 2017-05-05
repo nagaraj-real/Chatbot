@@ -5,8 +5,7 @@
  */
 var mongoose = require('mongoose');
 var Questions = require('./../models/questions.model');
-var WordPOS = require('wordpos'),
-    wordpos = new WordPOS();
+
 
 var _ = require('underscore')._;
 
@@ -22,55 +21,75 @@ var db = mongoose.connect('mongodb://127.0.0.1:27017', null, function (err) {
 });
 
 
-var createQuestions = function (_question, answer, counter,callback) {
-    console.log(_question);
+var createQuestions = function (_question, answer, counter, callback) {
+
     var questions = [];
+    var nonquestions = [];
 
+    var question = {
+        question: _question,
+        answer: answer,
+        counter: counter,
+        words: '',
+        nonquestions: false
+    };
 
+    var wordarray = _question.split(" ").sort();
 
+    question.words = wordarray.toString();
 
-    wordpos.getPOS(_question, function (result) {
-        var question = {
-            question: _question,
-            answer: answer,
-            counter: counter,
-            nouns: ''
-        };
-        var nouns = _.difference(result.nouns, result.adjectives);
-        question.nouns = _question.split(" ");;
-        questions.push(question);
-        var question = new Questions({ questions: questions });
-        question.save(callback);
-    });
+    if (_.contains(wordarray, 'what') ||
+        _.contains(wordarray, 'how') ||
+        _.contains(wordarray, 'why') ||
+        _.contains(wordarray, 'when') ||
+        _.contains(wordarray, '?') ||
+        _.contains(wordarray, 'where') ||
+        _.contains(wordarray, 'which') ||
+        _.contains(wordarray, 'who')) {
+        question.nonquestions = false;
+
+    } else {
+        question.nonquestions = true;
+    }
+
+    questions.push(question);
+
+    console.log(questions);
+    var question = new Questions({ questions: questions });
+    question.save(callback);
 
 
 };
 
 
-var fetchAnswers = function (noun) {
-    Questions.find({ 'questions': { $elemMatch: { nouns: {$in:noun} } } }, function (err, docs) {
+var fetchAnswers = function (words, callback) {
+    Questions.find({ 'questions': { $elemMatch: { words: { $regex: words, $options: 'i' } } } }, function (err, docs) {
         if (err)
-            console.log(err);
-        else{
-            console.log(docs[0].questions);
+            callback(err);
+        else {
+            callback(docs);
         }
     });
 
 };
 
-createQuestions('what is a tiger', 'what is a tiger', 0,function(){
- createQuestions('who does a tiger eat', 'who does a tiger eat', 0,function(){
-     createQuestions('who is the prime minister', 'who is the prime minister', 0,function(){
-         fetchAnswers(['tiger','who'])
-     });
- });
-});
+// fetchAnswers(['tiger', 'what']);
+
+// createQuestions('what is a tiger', 'what is a tiger', 0,function(){
+//  createQuestions('who does a tiger eat', 'who does a tiger eat', 0,function(){
+//      createQuestions('apple is a fruit', 'who is the prime minister', 0,function(){
+//          fetchAnswers('tiger','who')
+//      });
+//  });
+// });
 
 
 
 
 
 exports.createQuestions = createQuestions;
+
+exports.fetchAnswers = fetchAnswers;
 
 
 
