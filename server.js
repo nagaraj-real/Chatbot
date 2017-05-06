@@ -77,17 +77,6 @@ io.sockets.on('connection', function (socket) {
                 bottext = 'Bot :' + text;
                 io.sockets.emit('botmessage', { botmessage: bottext });
             } else {
-                if (_.contains(wordarray, 'what') ||
-                    _.contains(wordarray, 'how') ||
-                    _.contains(wordarray, 'why') ||
-                    _.contains(wordarray, 'when') ||
-                    _.contains(wordarray, '?') ||
-                    _.contains(wordarray, 'where') ||
-                    _.contains(wordarray, 'which') ||
-                    _.contains(wordarray, 'who')) {
-                    bottext = 'Bot : Sorry don know what you are talking about.will learn soon';
-                    io.sockets.emit('botmessage', { botmessage: bottext });
-                }
 
                 questions.createQuestions(data.message.trim(), '');
             }
@@ -100,11 +89,7 @@ io.sockets.on('connection', function (socket) {
             questions.fetchEmptyQuestions(function (docs) {
                 if (docs.length > 0) {
                     docs = _.shuffle(docs);
-                    if (docs[0].questions[0].nonquestion) {
-                        io.sockets.emit('botmessage', { botmessage: 'Bot :' + docs[0].questions[0].question });
-                    } else {
-                        io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
-                    }
+                    io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
                 }
             });
         }
