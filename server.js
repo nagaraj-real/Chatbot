@@ -8,14 +8,11 @@ var server = require('http').createServer(app);
 
 var io = require('socket.io').listen(server);
 var _ = require('underscore')._;
+var wordnet = require('wordnet');
 
-var Twitter = require('node-tweet-stream')
-    , t = new Twitter({
-        consumer_key: 'FJnRODaP39lntry79CSCR9K8M',
-        consumer_secret: '3LMY1DGLIzcEYs7Dtf0wzI6BqRdg1xJ5FaRsc3X0Vvj4Az0EIs',
-        token: '1608179036-pRHykxCtCEcxiOFMO4dHhHsh60QXcw9EdyWVZXa',
-        token_secret: 'YI0tl74Drfox4MWsYKhT6MrFsJbUxieFWGwRxdpkGf8m7'
-    })
+
+
+
 
 users = [];
 connections = [];
@@ -32,6 +29,12 @@ app.get('/', function (req, res) {
 
 
 io.sockets.on('connection', function (socket) {
+    questions.fetchEmptyQuestions(function (docs) {
+        if (docs.length > 0) {
+            docs = _.shuffle(docs);
+            io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
+        }
+    });
     connections.push(socket);
     console.log('connected : %s sockets connected', connections.length);
 
@@ -40,32 +43,46 @@ io.sockets.on('connection', function (socket) {
         console.log('connected : %s sockets connected', connections.length);
     });
 
+    socket.on('sendanswer', function (data) {
+        questions.updateAnswer(data.question, data.answer);
+        var returntext = socket.username + " : " + data.answer;
+        io.sockets.emit('humanmessage', { message: returntext });
+    });
+
+
     socket.on('sendmessage', function (data) {
         console.log(data.message);
         var wordarray = data.message.split(" ").sort();
         var returntext = socket.username + " : " + data.message;
         io.sockets.emit('humanmessage', { message: returntext });
-        questions.fetchAnswers(wordarray, function (docs) {
+        questions.fetchAnswers(data.message.trim(), function (docs) {
             var text = "";
-            var count=0;
+            var count = 0;
             if (docs.length > 0) {
                 text = docs[0].questions[0].answer;
-                bottext = 'bot :' + text;
+                bottext = 'Bot :' + text;
                 io.sockets.emit('botmessage', { botmessage: bottext });
             } else {
-                bottext = 'bot :' + 'I will learn more about this';
+                bottext = 'Bot :' + 'wait..';
                 io.sockets.emit('botmessage', { botmessage: bottext });
-                t.track('#'+data.message);
-                t.on('tweet', function (tweet) {
-                    console.log(tweet);
-                    count++;
-                    bottext = 'bot :' + tweet.text;
-                     io.sockets.emit('botmessage', { botmessage: bottext });
-                    if(count>2){
-                        t.untrack('#'+data.message)
+                wordpos.getPOS(data.message, function (result) {
+                    if (result.nouns.length > 0) {
+                        wordnet.lookup(result.nouns[0], function (err, definitions) {
+                            if (definitions) {
+                                definitions.forEach(function (definition) {
+                                    io.sockets.emit('botmessage', { botmessage: 'Bot :' + definition.glossary });
+                                });
+                            } else {
+                                io.sockets.emit('botmessage', { botmessage: 'Bot : Sorry !! no idea will learn soon' });
+                            }
+
+                        });
+                    } else {
+                        io.sockets.emit('botmessage', { botmessage: 'Bot: Sorry !! no idea will learn soon' });
                     }
-                });
-                
+                })
+
+                questions.createQuestions(data.message.trim(), '');
             }
 
 

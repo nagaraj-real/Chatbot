@@ -12,10 +12,11 @@
   "author": "Nagarajan Ramasamy",
   "license": "ISC",
   "dependencies": {
-    "express":"*",
-    "socket.io":"*",
+    "express": "*",
     "mongoose": "*",
-    "wordpos":"*",
-    "underscore":"*"
+    "socket.io": "*",
+    "underscore": "*",
+    "wordpos": "*",
+    "wordnet":"*"
   }
 }

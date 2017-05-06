@@ -61,9 +61,19 @@ var createQuestions = function (_question, answer, counter, callback) {
 
 };
 
+var updateAnswer = function (question, answer) {
+    Questions.findOne({ 'questions': { $elemMatch: { question: { $eq: question } } } }, function (err, doc) {
+        if (err){}
+        else{
+            doc.questions[0].answer=answer;
+            doc.save();
+        }
+    });
+}
 
-var fetchAnswers = function (words, callback) {
-    Questions.find({ 'questions': { $elemMatch: { words: { $regex: words, $options: 'i' } } } }, function (err, docs) {
+
+var fetchAnswers = function (question, callback) {
+    Questions.find({ 'questions': { $elemMatch: { question: { $eq: question}, answer: { $ne: '' } } } }, function (err, docs) {
         if (err)
             callback(err);
         else {
@@ -72,6 +82,18 @@ var fetchAnswers = function (words, callback) {
     });
 
 };
+
+var fetchEmptyQuestions = function (callback) {
+    Questions.find({ 'questions': { $elemMatch: { answer: { $eq: '' } } } }, function (err, docs) {
+        if (err)
+            callback(err);
+        else {
+            callback(docs);
+        }
+    });
+
+};
+
 
 // fetchAnswers(['tiger', 'what']);
 
@@ -90,6 +112,10 @@ var fetchAnswers = function (words, callback) {
 exports.createQuestions = createQuestions;
 
 exports.fetchAnswers = fetchAnswers;
+
+exports.fetchEmptyQuestions = fetchEmptyQuestions;
+
+exports.updateAnswer=updateAnswer;
 
 
 

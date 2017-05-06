@@ -35,8 +35,10 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket;
+        var questionalive = false;
+        var question = '';
         function onloadbody() {
-            socket = io.connect();  
+            socket = io.connect();
             socket.on('botmessage', function (data) {
                 console.log(data);
                 var messages = document.getElementById('messages');
@@ -46,7 +48,18 @@
                 messages.appendChild(p);
             });
 
-             socket.on('humanmessage', function (data) {
+            socket.on('botquestion', function (data) {
+                questionalive = true;
+                question = data.botmessage;
+                console.log(data);
+                var messages = document.getElementById('messages');
+                var p = document.createElement('p');
+                var node = document.createTextNode('bot :' + data.botmessage);
+                p.appendChild(node);
+                messages.appendChild(p);
+            });
+
+            socket.on('humanmessage', function (data) {
                 console.log(data);
                 var messages = document.getElementById('messages');
                 var p = document.createElement('p');
@@ -57,26 +70,33 @@
         }
 
         function sendmessage() {
-            var messagetext=document.getElementById('chatmessage');
+            var messagetext = document.getElementById('chatmessage');
             var data = messagetext.value;
             console.log(data);
-            socket.emit('sendmessage', { message: data });
+            if (questionalive) {
+                questionalive = false;
+                socket.emit('sendanswer', { question: question, answer: data });
+
+            } else {
+                socket.emit('sendmessage', { message: data });
+            }
             messagetext.value = '';
             return false;
         }
 
+
         function senduser() {
             var usertext = document.getElementById('username');
-            var messageform =  document.getElementById('messageform');
-            var userform =  document.getElementById('userform');
+            var messageform = document.getElementById('messageform');
+            var userform = document.getElementById('userform');
             console.log(usertext.value);
-            socket.emit('senduser', { user: usertext.value },function(success){
-                if(success){
+            socket.emit('senduser', { user: usertext.value }, function (success) {
+                if (success) {
                     usertext.value = '';
-                    userform.setAttribute("hidden","");
+                    userform.setAttribute("hidden", "");
                     messageform.removeAttribute("hidden");
                 }
-                 return false;
+                return false;
             });
         }
     </script>
@@ -95,7 +115,7 @@
                             <div class="messagediv">
                                 <div class="messages" id="messages">
                                 </div>
-                                <textarea class="form-control" id="chatmessage" placeholder="click here to chat.." ></textarea>
+                                <textarea class="form-control" id="chatmessage" placeholder="click here to chat.."></textarea>
                             </div>
                             <br/>
                             <button type="submit" class="btn btn-primary">Send Message</button>
