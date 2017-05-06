@@ -11,11 +11,21 @@ var _ = require('underscore')._;
 var wordnet = require('wordnet');
 
 
+var Twit = require('twit')
 
+var T = new Twit({
+    consumer_key: 'FJnRODaP39lntry79CSCR9K8M',
+    consumer_secret: '3LMY1DGLIzcEYs7Dtf0wzI6BqRdg1xJ5FaRsc3X0Vvj4Az0EIs',
+    access_token: '1608179036-pRHykxCtCEcxiOFMO4dHhHsh60QXcw9EdyWVZXa',
+    access_token_secret: 'YI0tl74Drfox4MWsYKhT6MrFsJbUxieFWGwRxdpkGf8m7',
+    timeout_ms: 60 * 1000,  // optional HTTP request timeout to apply to all requests. 
+})
 
 
 users = [];
 connections = [];
+
+sendMessageCount = 0;
 
 server.listen(process.env.port || 3000);
 
@@ -32,7 +42,11 @@ io.sockets.on('connection', function (socket) {
     questions.fetchEmptyQuestions(function (docs) {
         if (docs.length > 0) {
             docs = _.shuffle(docs);
-            io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
+            if (docs[0].questions[0].nonquestion) {
+                io.sockets.emit('botmessage', { botmessage: 'Bot :' + docs[0].questions[0].question });
+            } else {
+                io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
+            }
         }
     });
     connections.push(socket);
@@ -44,7 +58,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('sendanswer', function (data) {
-        questions.updateAnswer(data.question, data.answer);
+        questions.updateAnswer(data.question.trim(), data.answer);
         var returntext = socket.username + " : " + data.answer;
         io.sockets.emit('humanmessage', { message: returntext });
     });
@@ -63,30 +77,37 @@ io.sockets.on('connection', function (socket) {
                 bottext = 'Bot :' + text;
                 io.sockets.emit('botmessage', { botmessage: bottext });
             } else {
-                bottext = 'Bot :' + 'wait..';
-                io.sockets.emit('botmessage', { botmessage: bottext });
-                wordpos.getPOS(data.message, function (result) {
-                    if (result.nouns.length > 0) {
-                        wordnet.lookup(result.nouns[0], function (err, definitions) {
-                            if (definitions) {
-                                definitions.forEach(function (definition) {
-                                    io.sockets.emit('botmessage', { botmessage: 'Bot :' + definition.glossary });
-                                });
-                            } else {
-                                io.sockets.emit('botmessage', { botmessage: 'Bot : Sorry !! no idea will learn soon' });
-                            }
-
-                        });
-                    } else {
-                        io.sockets.emit('botmessage', { botmessage: 'Bot: Sorry !! no idea will learn soon' });
-                    }
-                })
+                if (_.contains(wordarray, 'what') ||
+                    _.contains(wordarray, 'how') ||
+                    _.contains(wordarray, 'why') ||
+                    _.contains(wordarray, 'when') ||
+                    _.contains(wordarray, '?') ||
+                    _.contains(wordarray, 'where') ||
+                    _.contains(wordarray, 'which') ||
+                    _.contains(wordarray, 'who')) {
+                    bottext = 'Bot : Sorry don know what you are talking about.will learn soon';
+                    io.sockets.emit('botmessage', { botmessage: bottext });
+                }
 
                 questions.createQuestions(data.message.trim(), '');
             }
 
 
         });
+
+        sendMessageCount++;
+        if (sendMessageCount % 2 === 0) {
+            questions.fetchEmptyQuestions(function (docs) {
+                if (docs.length > 0) {
+                    docs = _.shuffle(docs);
+                    if (docs[0].questions[0].nonquestion) {
+                        io.sockets.emit('botmessage', { botmessage: 'Bot :' + docs[0].questions[0].question });
+                    } else {
+                        io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
+                    }
+                }
+            });
+        }
 
     });
 

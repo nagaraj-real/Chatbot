@@ -31,7 +31,7 @@ var createQuestions = function (_question, answer, counter, callback) {
         answer: answer,
         counter: counter,
         words: '',
-        nonquestions: false
+        nonquestion: null
     };
 
     var wordarray = _question.split(" ").sort();
@@ -46,10 +46,10 @@ var createQuestions = function (_question, answer, counter, callback) {
         _.contains(wordarray, 'where') ||
         _.contains(wordarray, 'which') ||
         _.contains(wordarray, 'who')) {
-        question.nonquestions = false;
+        question.nonquestion = false;
 
     } else {
-        question.nonquestions = true;
+        question.nonquestion = true;
     }
 
     questions.push(question);
@@ -93,19 +93,6 @@ var fetchEmptyQuestions = function (callback) {
     });
 
 };
-
-
-// fetchAnswers(['tiger', 'what']);
-
-// createQuestions('what is a tiger', 'what is a tiger', 0,function(){
-//  createQuestions('who does a tiger eat', 'who does a tiger eat', 0,function(){
-//      createQuestions('apple is a fruit', 'who is the prime minister', 0,function(){
-//          fetchAnswers('tiger','who')
-//      });
-//  });
-// });
-
-
 
 
 

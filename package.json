@@ -17,6 +17,7 @@
     "socket.io": "*",
     "underscore": "*",
     "wordpos": "*",
-    "wordnet":"*"
+    "wordnet":"*",
+    "twit":"*"
   }
 }
