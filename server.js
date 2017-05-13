@@ -9,9 +9,12 @@ var _ = require('underscore')._;
 
 users = [];
 connections = [];
-initialemit = true;
-adminmode = false;
-aliveQuestion = null;
+
+var adminmode = null;
+var initialemit = null;
+var aliveQuestion = null;
+var aliveuser=null;
+var clients = {};
 
 server.listen(process.env.port || 3000);
 
@@ -45,8 +48,8 @@ io.sockets.on('connection', function (socket) {
         io.sockets.emit('appendView', { message: returntext });
 
         if (initialemit) {
-            var text = 'Thanks for providing your number. Please let me know about the issue you are facing.';
-            var bottext = 'Bot :' + text;
+            var text = 'Thanks for providing your number. Please shoot your queries.';
+            var bottext = 'Bot : ' + text;
             io.sockets.emit('appendView', { message: bottext });
             initialemit = false;
         } else {
@@ -63,13 +66,14 @@ io.sockets.on('connection', function (socket) {
                     var text = "";
                     if (doc) {
                         var text = doc.questions[0].answer;
-                        var bottext = 'Bot :' + text;
+                        var bottext = 'Bot : ' + text;
                         io.sockets.emit('appendView', { message: bottext });
                     } else {
-                        var text = 'I am not able to find a solution for you.Please wait for the admin to give you solution.';
+                        var text = 'Oh ho looks like I have lot to learn!!  Please wait for the admin to give you solution.';
                         var bottext = 'Bot : ' + text;
                         io.sockets.emit('appendView', { message: bottext });
                         aliveQuestion = data.message.trim();
+                        aliveuser=socket.username;
                     }
 
 
@@ -84,15 +88,21 @@ io.sockets.on('connection', function (socket) {
     socket.on('senduser', function (data, callback) {
         console.log(data.user);
         socket.username = data.user;
-        if (socket.username.toUpperCase() === 'ADMIN') {
-            adminmode = true;
-        } else {
-            var text = 'Hi '+socket.username+ ' !!! Thanks for contacting Airway!!! Please enter your number';
-            var bottext = 'Bot :' + text;
-            io.sockets.emit('appendView', { message: bottext });
-        }
+
         if (users.indexOf(data.user) == -1) {
             users.push(data.user);
+            if (socket.username.toUpperCase() === 'ADMIN') {
+                adminmode = true;
+                initialemit = false;
+                var returntext = aliveuser + " : " + aliveQuestion;
+                connections[connections.length-1].emit('appendView', { message: returntext });
+            } else {
+                adminmode = false;
+                initialemit = true;
+                var text = 'Hi ' + socket.username + ' !!! Thanks for contacting Airway!!! Please enter your number';
+                var bottext = 'Bot : ' + text;
+                io.sockets.emit('appendView', { message: bottext });
+            }
             callback(true);
         }
         else {

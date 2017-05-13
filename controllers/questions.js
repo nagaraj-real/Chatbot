@@ -59,15 +59,19 @@ var fetchAnswers = function (_question, callback) {
             callback(err);
         else {
             var questionAnswerArray = docs[0].questions;
-            var questionsArray = questionAnswerArray.map(function (a) {
-                return a._doc.question;
+            var questionsArray = [];
+            var dummy = docs.map(function (a) {
+                return a.questions.map(function (b) {
+                    questionsArray.push(b._doc.question);
+                    return questionsArray;
+                });
             });
-            //var questionsArray = _.pluck(questionAnswerArray, 'questions');
+
             var question = fuzzy.filter(_question, questionsArray)
             if (question.length > 0)
                 matchQuestions(question[0].original, callback);
             else
-                calback(null);
+                callback(null);
         }
     });
 }
