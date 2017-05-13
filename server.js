@@ -11,9 +11,8 @@ users = [];
 connections = [];
 
 var adminmode = null;
-var initialemit = null;
 var aliveQuestion = null;
-var aliveuser=null;
+var aliveuser = null;
 var clients = {};
 
 server.listen(process.env.port || 3000);
@@ -44,33 +43,39 @@ io.sockets.on('connection', function (socket) {
     socket.on('HumanMessage', function (data) {
         console.log(data.message);
 
-        var returntext = data.message;
-        io.sockets.emit('appendView', { message: returntext,name:socket.username });
 
-        if (initialemit) {
+
+        if (data.initialemit) {
+            var returntext = data.message;
+            socket.emit('appendView', { message: returntext, name: socket.username });
             var text = 'Thanks for providing your number. Please shoot your queries.';
-            io.sockets.emit('appendView', { message: text,name:'Bot' });
-            initialemit = false;
+            socket.emit('appendView', { message: text, name: 'Bot' });
         } else {
 
             if (adminmode) {
                 if (socket.username.toUpperCase() === 'ADMIN') {
+                    var returntext = data.message;
+                    io.sockets.emit('appendView', { message: returntext, name: socket.username });
                     questions.createQuestions(aliveQuestion, data.message.trim());
                 } else {
+                    var returntext = data.message;
+                    socket.emit('appendView', { message: returntext, name: socket.username });
                     aliveQuestion = data.message.trim();
                 }
             } else {
+                var returntext = data.message;
+                socket.emit('appendView', { message: returntext, name: socket.username });
 
                 questions.fetchAnswers(data.message.trim(), function (doc) {
                     var text = "";
                     if (doc) {
                         var text = doc.questions[0].answer;
-                        io.sockets.emit('appendView', { message: text,name:'Bot' });
+                        socket.emit('appendView', { message: text, name: 'Bot' });
                     } else {
                         var text = 'Oh ho looks like I have lot to learn!!  Please wait for the admin to give you solution.';
-                        io.sockets.emit('appendView', { message: text,name:'Bot' });
+                        socket.emit('appendView', { message: text, name: 'Bot' });
                         aliveQuestion = data.message.trim();
-                        aliveuser=socket.username;
+                        aliveuser = socket.username;
                     }
 
 
@@ -88,15 +93,17 @@ io.sockets.on('connection', function (socket) {
 
         if (true || users.indexOf(data.user) == -1) {
             users.push(data.user);
+
             if (socket.username.toUpperCase() === 'ADMIN') {
                 adminmode = true;
-                initialemit = false;
-                connections[connections.length-1].emit('appendView', { message: aliveQuestion,name:aliveuser});
+                socket.emit('appendView', { message: aliveQuestion, name: aliveuser });
             } else {
+                if(users.length>1){
+                    socket.disconnect();
+                }
                 adminmode = false;
-                initialemit = true;
                 var text = 'Hi ' + socket.username + ' !!! Thanks for contacting Airway!!! Please enter your number';
-                io.sockets.emit('appendView', { message: text,name:'Bot' });
+                socket.emit('appendView', { message: text, name: 'Bot' });
             }
             callback(true);
         }

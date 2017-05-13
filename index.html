@@ -26,6 +26,10 @@
             float: right;
         }
 
+        div.messagediv p span.namespan {
+            font-weight: bold;
+        }
+
         div.messagediv p.botchat span.chatspan {
             padding: 10px;
             background: #ccc;
@@ -48,7 +52,7 @@
         textarea {
             border: none !important;
             box-shadow: none !important;
-            font-size: 20px !important;
+            font-size: 16px !important;
         }
 
         .phonetext {
@@ -88,7 +92,7 @@
         var adminmode = false;
 
         function onloadbody() {
-            socket = io.connect();
+            socket = io.connect({ 'force new connection': true });
             socket.on('appendView', function (data) {
                 console.log(data);
                 var messages = document.getElementById('messages');
@@ -96,6 +100,7 @@
                 var span = document.createElement('span');
                 var node = document.createTextNode(data.name + ' : ');
                 span.appendChild(node);
+                span.classList.add('namespan');
                 p.appendChild(span);
                 var span = document.createElement('span');
                 var node = document.createTextNode(data.message);
@@ -117,15 +122,21 @@
                 document.getElementById('phonenum').classList.add("hide");
                 document.getElementById('chatmessage').classList.remove("hide");
                 initialemit = false;
+                var data = messagetext.value;
+                console.log(data);
+                socket.emit('HumanMessage', { message: data, initialemit: true });
+                messagetext.value = '';
+                return false;
             } else {
                 var messagetext = document.getElementById('chatmessage');
+                var data = messagetext.value;
+                console.log(data);
+                socket.emit('HumanMessage', { message: data });
+                messagetext.value = '';
+                return false;
             }
 
-            var data = messagetext.value;
-            console.log(data);
-            socket.emit('HumanMessage', { message: data });
-            messagetext.value = '';
-            return false;
+
 
         }
 
