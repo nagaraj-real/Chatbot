@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose');
 var Questions = require('./../models/questions.model');
+var fuzzy = require('fuzzy');
 
 
 var _ = require('underscore')._;
@@ -13,7 +14,7 @@ var _ = require('underscore')._;
 var db = mongoose.connect('mongodb://127.0.0.1:27017', null, function (err) {
     // Log Error
     if (err) {
-        console.error(chalk.red('Could not connect to MongoDB!'));
+        console.error('Could not connect to MongoDB!');
         console.log(err);
     } else {
         console.log("mongoose connected")
@@ -21,88 +22,60 @@ var db = mongoose.connect('mongodb://127.0.0.1:27017', null, function (err) {
 });
 
 
-var createQuestions = function (_question, answer, counter, callback) {
+var createQuestions = function (_question, _answer, callback) {
 
     var questions = [];
-    var nonquestions = [];
 
     var question = {
         question: _question,
-        answer: answer,
-        counter: counter,
-        words: '',
-        nonquestion: null
-    };
-
-    var wordarray = _question.split(" ").sort();
-
-    question.words = wordarray.toString();
-
-    if (_.contains(wordarray, 'what') ||
-        _.contains(wordarray, 'how') ||
-        _.contains(wordarray, 'why') ||
-        _.contains(wordarray, 'when') ||
-        _.contains(wordarray, '?') ||
-        _.contains(wordarray, 'where') ||
-        _.contains(wordarray, 'which') ||
-        _.contains(wordarray, 'who')) {
-        question.nonquestion = false;
-
-    } else {
-        question.nonquestion = true;
+        answer: _answer
     }
 
     questions.push(question);
 
     console.log(questions);
+
     var question = new Questions({ questions: questions });
     question.save(callback);
 
+};
+
+
+var matchQuestions = function (question, callback) {
+    Questions.findOne({ 'questions': { $elemMatch: { question: { $eq: question }, answer: { $ne: '' } } } }, function (err, doc) {
+        if (err)
+            callback(err);
+        else {
+            callback(doc);
+        }
+    });
 
 };
 
-var updateAnswer = function (question, answer) {
-    Questions.findOne({ 'questions': { $elemMatch: { question: { $eq: question } } } }, function (err, doc) {
-        if (err){}
-        else{
-            doc.questions[0].answer=answer;
-            doc.save();
+
+var fetchAnswers = function (_question, callback) {
+    Questions.find({}, function (err, docs) {
+        if (err)
+            callback(err);
+        else {
+            var questionAnswerArray = docs[0].questions;
+            var questionsArray = questionAnswerArray.map(function (a) {
+                return a._doc.question;
+            });
+            //var questionsArray = _.pluck(questionAnswerArray, 'questions');
+            var question = fuzzy.filter(_question, questionsArray)
+            if (question.length > 0)
+                matchQuestions(question[0].original, callback);
+            else
+                calback(null);
         }
     });
 }
 
 
-var fetchAnswers = function (question, callback) {
-    Questions.find({ 'questions': { $elemMatch: { question: { $eq: question}, answer: { $ne: '' } } } }, function (err, docs) {
-        if (err)
-            callback(err);
-        else {
-            callback(docs);
-        }
-    });
-
-};
-
-var fetchEmptyQuestions = function (callback) {
-    Questions.find({ 'questions': { $elemMatch: { answer: { $eq: '' } } } }, function (err, docs) {
-        if (err)
-            callback(err);
-        else {
-            callback(docs);
-        }
-    });
-
-};
-
-
-
 exports.createQuestions = createQuestions;
 
 exports.fetchAnswers = fetchAnswers;
-
-exports.fetchEmptyQuestions = fetchEmptyQuestions;
-
-exports.updateAnswer=updateAnswer;
 
 
 

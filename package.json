@@ -2,7 +2,7 @@
   "name": "chatbot",
   "version": "1.0.0",
   "description": "Chatbot app which uses socket.io",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,8 +16,6 @@
     "mongoose": "*",
     "socket.io": "*",
     "underscore": "*",
-    "wordpos": "*",
-    "wordnet":"*",
-    "twit":"*"
+    "fuzzy": "*"
   }
 }

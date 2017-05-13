@@ -12,16 +12,16 @@
             border: 1px solid #ccc;
             background-image: 'assets/bgimage.jpg'
         }
-        
+
         div.messagediv p {
             padding: 6px 12px;
         }
-        
+
         textarea {
             border: none !important;
             box-shadow: none !important;
         }
-        
+
         .username {
             width: 200px;
         }
@@ -35,15 +35,16 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket;
-        var questionalive = false;
-        var question = '';
+        var initialemit = true;
+        var adminmode = false;
+
         function onloadbody() {
             socket = io.connect();
-            socket.on('botmessage', function (data) {
+            socket.on('appendView', function (data) {
                 console.log(data);
                 var messages = document.getElementById('messages');
                 var p = document.createElement('p');
-                var node = document.createTextNode(data.botmessage);
+                var node = document.createTextNode(data.message);
                 p.appendChild(node);
                 messages.appendChild(p);
             });
@@ -58,30 +59,24 @@
                 p.appendChild(node);
                 messages.appendChild(p);
             });
-
-            socket.on('humanmessage', function (data) {
-                console.log(data);
-                var messages = document.getElementById('messages');
-                var p = document.createElement('p');
-                var node = document.createTextNode(data.message);
-                p.appendChild(node);
-                messages.appendChild(p);
-            });
         }
 
         function sendmessage() {
-            var messagetext = document.getElementById('chatmessage');
+            if (initialemit) {
+                var messagetext = document.getElementById('phonenum');
+                document.getElementById('phonenum').setAttribute("hidden", "");
+                document.getElementById('chatmessage').classList.remove("hide");
+                initialemit = false;
+            } else {
+                var messagetext = document.getElementById('chatmessage');
+            }
+
             var data = messagetext.value;
             console.log(data);
-            if (questionalive) {
-                questionalive = false;
-                socket.emit('sendanswer', { question: question, answer: data });
-
-            } else {
-                socket.emit('sendmessage', { message: data });
-            }
+            socket.emit('HumanMessage', { message: data });
             messagetext.value = '';
             return false;
+
         }
 
 
@@ -90,6 +85,13 @@
             var messageform = document.getElementById('messageform');
             var userform = document.getElementById('userform');
             console.log(usertext.value);
+            if (usertext.value.toUpperCase() === 'ADMIN') {
+                adminmode = true;
+                var messagetext = document.getElementById('phonenum');
+                document.getElementById('phonenum').setAttribute("hidden", "");
+                  document.getElementById('chatmessage').classList.remove("hide");
+                initialemit = false;
+            }
             socket.emit('senduser', { user: usertext.value }, function (success) {
                 if (success) {
                     usertext.value = '';
@@ -115,7 +117,8 @@
                             <div class="messagediv">
                                 <div class="messages" id="messages">
                                 </div>
-                                <textarea class="form-control" id="chatmessage" placeholder="click here to chat.."></textarea>
+                                <textarea class="form-control hide" id="chatmessage" placeholder="click here to chat.." ></textarea>
+                                <input id='phonenum' type="text" maxlength='10' pattern="\+?\d[\d -]{8,12}\d" title="Please enter valid phone number"/>
                             </div>
                             <br/>
                             <button type="submit" class="btn btn-primary">Send Message</button>

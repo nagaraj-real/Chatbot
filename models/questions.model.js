@@ -22,16 +22,7 @@ var QuestionSchema = new Schema({
     type: String,
     default: '',
     trim: true
-  },
-  count: {
-    type: Number,
-    default: 0
-  },
-  nonquestion:{
-    type:Boolean,
-    default:false
-  },
-  words: String
+  }
 });
 
 /**

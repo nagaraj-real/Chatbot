@@ -1,31 +1,17 @@
 var express = require('express');
 var questions = require('./controllers/questions');
-var WordPOS = require('wordpos'),
-    wordpos = new WordPOS();
 
 var app = express();
 var server = require('http').createServer(app);
 
 var io = require('socket.io').listen(server);
 var _ = require('underscore')._;
-var wordnet = require('wordnet');
-
-
-var Twit = require('twit')
-
-var T = new Twit({
-    consumer_key: 'FJnRODaP39lntry79CSCR9K8M',
-    consumer_secret: '3LMY1DGLIzcEYs7Dtf0wzI6BqRdg1xJ5FaRsc3X0Vvj4Az0EIs',
-    access_token: '1608179036-pRHykxCtCEcxiOFMO4dHhHsh60QXcw9EdyWVZXa',
-    access_token_secret: 'YI0tl74Drfox4MWsYKhT6MrFsJbUxieFWGwRxdpkGf8m7',
-    timeout_ms: 60 * 1000,  // optional HTTP request timeout to apply to all requests. 
-})
-
 
 users = [];
 connections = [];
-
-sendMessageCount = 0;
+initialemit = true;
+adminmode = false;
+aliveQuestion = null;
 
 server.listen(process.env.port || 3000);
 
@@ -39,66 +25,72 @@ app.get('/', function (req, res) {
 
 
 io.sockets.on('connection', function (socket) {
-    questions.fetchEmptyQuestions(function (docs) {
-        if (docs.length > 0) {
-            docs = _.shuffle(docs);
-            if (docs[0].questions[0].nonquestion) {
-                io.sockets.emit('botmessage', { botmessage: 'Bot :' + docs[0].questions[0].question });
-            } else {
-                io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
-            }
-        }
-    });
+
     connections.push(socket);
     console.log('connected : %s sockets connected', connections.length);
+
+
+
 
     socket.on('disconnect', function (currentsocket) {
         connections.splice(connections.indexOf(currentsocket), 1);
         console.log('connected : %s sockets connected', connections.length);
     });
 
-    socket.on('sendanswer', function (data) {
-        questions.updateAnswer(data.question.trim(), data.answer);
-        var returntext = socket.username + " : " + data.answer;
-        io.sockets.emit('humanmessage', { message: returntext });
-    });
 
-
-    socket.on('sendmessage', function (data) {
+    socket.on('HumanMessage', function (data) {
         console.log(data.message);
-        var wordarray = data.message.split(" ").sort();
+
         var returntext = socket.username + " : " + data.message;
-        io.sockets.emit('humanmessage', { message: returntext });
-        questions.fetchAnswers(data.message.trim(), function (docs) {
-            var text = "";
-            var count = 0;
-            if (docs.length > 0) {
-                text = docs[0].questions[0].answer;
-                bottext = 'Bot :' + text;
-                io.sockets.emit('botmessage', { botmessage: bottext });
+        io.sockets.emit('appendView', { message: returntext });
+
+        if (initialemit) {
+            var text = 'Thanks for providing your number. Please let me know about the issue you are facing.';
+            var bottext = 'Bot :' + text;
+            io.sockets.emit('appendView', { message: bottext });
+            initialemit = false;
+        } else {
+
+            if (adminmode) {
+                if (socket.username.toUpperCase() === 'ADMIN') {
+                    questions.createQuestions(aliveQuestion, data.message.trim());
+                } else {
+                    aliveQuestion = data.message.trim();
+                }
             } else {
 
-                questions.createQuestions(data.message.trim(), '');
+                questions.fetchAnswers(data.message.trim(), function (doc) {
+                    var text = "";
+                    if (doc) {
+                        var text = doc.questions[0].answer;
+                        var bottext = 'Bot :' + text;
+                        io.sockets.emit('appendView', { message: bottext });
+                    } else {
+                        var text = 'I am not able to find a solution for you.Please wait for the admin to give you solution.';
+                        var bottext = 'Bot : ' + text;
+                        io.sockets.emit('appendView', { message: bottext });
+                        aliveQuestion = data.message.trim();
+                    }
+
+
+                });
             }
-
-
-        });
-
-        sendMessageCount++;
-        if (sendMessageCount % 2 === 0) {
-            questions.fetchEmptyQuestions(function (docs) {
-                if (docs.length > 0) {
-                    docs = _.shuffle(docs);
-                    io.sockets.emit('botquestion', { botmessage: docs[0].questions[0].question });
-                }
-            });
         }
+
+
 
     });
 
     socket.on('senduser', function (data, callback) {
         console.log(data.user);
         socket.username = data.user;
+        if (socket.username.toUpperCase() === 'ADMIN') {
+            adminmode = true;
+        } else {
+            var text = 'Hi '+socket.username+ ' !!! Thanks for contacting Airway!!! Please enter your number';
+            var bottext = 'Bot :' + text;
+            io.sockets.emit('appendView', { message: bottext });
+        }
         if (users.indexOf(data.user) == -1) {
             users.push(data.user);
             callback(true);
