@@ -9,21 +9,70 @@
 
     <style>
         div.messagediv {
-            border: 1px solid #ccc;
             background-image: 'assets/bgimage.jpg'
         }
 
         div.messagediv p {
             padding: 6px 12px;
+            margin: 10px 0px 10px 0px;
+        }
+
+        div.messagediv p.botchat {
+            float: left;
+            width: 100%
+        }
+
+        div.messagediv p.humanchat {
+            float: right;
+        }
+
+        div.messagediv p.botchat span.chatspan {
+            padding: 10px;
+            background: #ccc;
+            margin: 10px;
+            border-radius: 15px;
+            color: #484545;
+            display: inline-block;
+            width: 40%;
+        }
+
+        div.messagediv p.humanchat span.chatspan {
+            padding: 10px;
+            background: #bf4444;
+            margin: 10px;
+            border-radius: 15px;
+            color: white;
+            display: inline-block;
         }
 
         textarea {
             border: none !important;
             box-shadow: none !important;
+            font-size: 20px !important;
+        }
+
+        .phonetext {
+            width: 200px;
+            margin: 10px;
         }
 
         .username {
             width: 200px;
+        }
+
+        .glyphicon-inbox {
+            color: #d9534f;
+            font-size: 15px;
+            padding: 5px;
+        }
+
+        .btn-start {
+            margin-top: 20px;
+        }
+
+        .btn-send {
+            margin-top: 20px;
+            margin-left: 10px;
         }
     </style>
 
@@ -44,19 +93,20 @@
                 console.log(data);
                 var messages = document.getElementById('messages');
                 var p = document.createElement('p');
+                var span = document.createElement('span');
+                var node = document.createTextNode(data.name + ' : ');
+                span.appendChild(node);
+                p.appendChild(span);
+                var span = document.createElement('span');
                 var node = document.createTextNode(data.message);
-                p.appendChild(node);
-                messages.appendChild(p);
-            });
-
-            socket.on('botquestion', function (data) {
-                questionalive = true;
-                question = data.botmessage;
-                console.log(data);
-                var messages = document.getElementById('messages');
-                var p = document.createElement('p');
-                var node = document.createTextNode('Bot :' + data.botmessage);
-                p.appendChild(node);
+                span.classList.add('chatspan');
+                span.appendChild(node);
+                p.appendChild(span);
+                if (data.name.trim().toUpperCase() === 'BOT' || data.name.trim().toUpperCase() === 'ADMIN') {
+                    p.classList.add('botchat')
+                } else {
+                    p.classList.add('humanchat')
+                }
                 messages.appendChild(p);
             });
         }
@@ -64,7 +114,7 @@
         function sendmessage() {
             if (initialemit) {
                 var messagetext = document.getElementById('phonenum');
-                document.getElementById('phonenum').setAttribute("hidden", "");
+                document.getElementById('phonenum').classList.add("hide");
                 document.getElementById('chatmessage').classList.remove("hide");
                 initialemit = false;
             } else {
@@ -88,8 +138,8 @@
             if (usertext.value.toUpperCase() === 'ADMIN') {
                 adminmode = true;
                 var messagetext = document.getElementById('phonenum');
-                document.getElementById('phonenum').setAttribute("hidden", "");
-                  document.getElementById('chatmessage').classList.remove("hide");
+                document.getElementById('phonenum').classList.add("hide");
+                document.getElementById('chatmessage').classList.remove("hide");
                 initialemit = false;
             }
             socket.emit('senduser', { user: usertext.value }, function (success) {
@@ -104,37 +154,38 @@
     </script>
 </head>
 
-<body class="container-fluid" onload="onloadbody()">
+<body class="container" onload="onloadbody()">
 
     <div>
-        <h1>Welcome </h1>
-        <div class="row">
-            <div class="col-md-12">
-                <h4>ChatBox</h4>
+        <h3 class="text-center">Airway Customer Care</h3>
+        <div class="row panel panel-default">
+            <div class="panel-heading"><span class="glyphicon glyphicon-inbox"></span>CHAT BOT</div>
+            <div class="col-md-12 panel-body">
                 <div class=" chat" id="chat">
                     <form id="messageform" onsubmit="return sendmessage();" hidden>
                         <div class="form-group">
                             <div class="messagediv">
                                 <div class="messages" id="messages">
                                 </div>
-                                <textarea class="form-control hide" id="chatmessage" placeholder="click here to chat.." ></textarea>
-                                <input id='phonenum' type="text" maxlength='10' pattern="\+?\d[\d -]{8,12}\d" title="Please enter valid phone number"/>
+                                <textarea class="form-control hide" id="chatmessage" placeholder="Type here!"></textarea>
+                                <input class="form-control phonetext" id="phonenum" type="text" placeholder="Enter your mobile number" maxlength='10' pattern="\+?\d[\d -]{8,12}\d"
+                                    title="Please enter valid phone number" />
                             </div>
-                            <br/>
-                            <button type="submit" class="btn btn-primary">Send Message</button>
+
+                            <button type="submit " class="btn btn-danger btn-send">Send <span class="glyphicon glyphicon-send"><span></button>
                         </div>
                     </form>
                     <form id="userform" onsubmit="senduser();return false;">
-                        <input type="text" class="form-control username" id="username" value="" placeholder="Enter username" />
-                        <br/>
-                        <button type="submit" class="btn btn-primary">Set</button>
+                        <input type="text" class="form-control username" id="username" placeholder="Enter your username" />
+
+                        <button type="submit" class="btn btn-danger btn-start">Start</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js " integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa "
+        crossorigin="anonymous "></script>
 
 </body>
 
