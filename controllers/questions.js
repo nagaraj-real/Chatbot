@@ -17,8 +17,8 @@ var mailtemplate = fs.readFileSync('./mailtemplate.html');
 
 var uri = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://ds027155.mlab.com:27155/chatbot';
 var options = {
-    user: 'zanmi',
-    pass: 'zanmi@123'
+    user: 'raj',
+    pass: 'raj@123'
 };
 
 var db = mongoose.connect(uri, options, function (err) {
