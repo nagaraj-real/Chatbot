@@ -101,7 +101,7 @@ io.sockets.on('connection', function (socket) {
                         var hash = genRandomString(socket.username);
                         questions.sendAdminMail(null, 'admin', hash);
                         savedhash = hash;
-                        socket.emit('appendView', { message: text, name: 'Bot' });
+                        socket.emit('appendView', { message: text, name: 'Bot',adminmode:true});
                         aliveQuestion = data.message.trim();
                         aliveuser = socket.username;
                     }

@@ -1,7 +1,6 @@
 
 var socket;
 var initialemit = true;
-var savedhash = null;
 var adminmode = false;
 
 
@@ -14,7 +13,6 @@ function onloadbody() {
         document.getElementById('userform').setAttribute("hidden", "");
         document.getElementById('messageform').removeAttribute("hidden");
         document.getElementById('phonenum').classList.add("hide");
-        document.getElementById('chatmessage').classList.remove("hide");
     });
 
     socket.on('appendView', function (data) {
@@ -32,14 +30,17 @@ function onloadbody() {
         span.appendChild(node);
         p.appendChild(span);
         if (data.name.trim().toUpperCase() === 'BOT' || data.name.trim().toUpperCase() === 'ADMIN') {
-            p.classList.add('botchat')
+            p.classList.add('botchat');
+            if (data.name.trim().toUpperCase() === 'ADMIN' && document.getElementById('chatmessage').classList.contains("hide")) {
+                document.getElementById('chatmessage').classList.remove("hide");
+            }else if (data.name.trim().toUpperCase() === 'BOT' && data.adminmode) {
+                document.getElementById('chatmessage').classList.add("hide");
+            }
         } else {
             p.classList.add('humanchat')
         }
         messages.appendChild(p);
-        if (data.hash) {
-            savedhash = data.hash;
-        }
+
     });
 }
 
