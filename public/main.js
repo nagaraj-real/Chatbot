@@ -31,10 +31,10 @@ function onloadbody() {
         p.appendChild(span);
         if (data.name.trim().toUpperCase() === 'BOT' || data.name.trim().toUpperCase() === 'ADMIN') {
             p.classList.add('botchat');
-            if (data.name.trim().toUpperCase() === 'ADMIN' && document.getElementById('chatmessage').classList.contains("hide")) {
-                document.getElementById('chatmessage').classList.remove("hide");
+            if (data.name.trim().toUpperCase() === 'ADMIN') {
+                document.getElementById('chatmessage').removeAttribute("disabled");
             }else if (data.name.trim().toUpperCase() === 'BOT' && data.adminmode) {
-                document.getElementById('chatmessage').classList.add("hide");
+                document.getElementById('chatmessage').setAttribute("disabled", "");
             }
         } else {
             p.classList.add('humanchat')
