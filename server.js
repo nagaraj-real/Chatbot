@@ -24,6 +24,7 @@ server.listen(process.env.PORT || 3000);
 console.log('server running');
 
 app.get('/', function (req, res) {
+    adminmode = false;
     if (req.query.username && req.query.username.toUpperCase() === 'ADMIN' && req.query.hash && req.query.hash === savedhash) {
         adminmode = true;
         res.sendfile(__dirname + '/public/index.html');
