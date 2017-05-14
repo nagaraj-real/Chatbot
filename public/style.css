@@ -28,7 +28,8 @@
             border-radius: 15px;
             color: #484545;
             display: inline-block;
-            width: 40%;
+            width: 40%;            
+            word-wrap: break-word;
         }
 
         div.messagediv p.humanchat span.chatspan {
@@ -37,7 +38,8 @@
             margin: 10px;
             border-radius: 15px;
             color: white;
-            display: inline-block;
+            display: inline-block;          
+            word-wrap: break-word;
         }
 
         textarea {
