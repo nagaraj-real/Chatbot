@@ -28,7 +28,7 @@ app.get('/', function (req, res) {
     if (req.query.username && req.query.username.toUpperCase() === 'ADMIN' && req.query.hash && req.query.hash === savedhash) {
         adminmode = true;
         res.sendfile(__dirname + '/public/index.html');
-        savedhash = 'aes-256-ctr';
+        savedhash='aes-256-ctr';
     } else {
         res.sendFile(__dirname + '/public/index.html');
     }
@@ -62,7 +62,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('disconnect', function (currentsocket) {
         connections.splice(connections.indexOf(currentsocket), 1);
         console.log('connected : %s sockets connected', connections.length);
-        users = [];
+        users=[];
     });
 
 
@@ -79,10 +79,15 @@ io.sockets.on('connection', function (socket) {
         } else {
 
             if (adminmode) {
-                var returntext = data.message;
-                io.sockets.emit('appendView', { message: returntext, name: socket.username });
-                questions.createQuestions(aliveQuestion, data.message.trim());
-
+                if (socket.username.toUpperCase() === 'ADMIN') {
+                    var returntext = data.message;
+                    io.sockets.emit('appendView', { message: returntext, name: socket.username });
+                    questions.createQuestions(aliveQuestion, data.message.trim());
+                } else {
+                    var returntext = data.message;
+                    io.sockets.emit('appendView', { message: returntext, name: socket.username });
+                    aliveQuestion = data.message.trim();
+                }
             } else {
                 var returntext = data.message;
                 socket.emit('appendView', { message: returntext, name: socket.username });
@@ -97,7 +102,7 @@ io.sockets.on('connection', function (socket) {
                         var hash = genRandomString(socket.username);
                         questions.sendAdminMail(null, 'admin', hash);
                         savedhash = hash;
-                        socket.emit('appendView', { message: text, name: 'Bot', adminmode: true });
+                        socket.emit('appendView', { message: text, name: 'Bot',adminmode:true});
                         aliveQuestion = data.message.trim();
                         aliveuser = socket.username;
                     }
