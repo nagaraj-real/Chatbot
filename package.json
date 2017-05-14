@@ -16,6 +16,7 @@
     "mongoose": "*",
     "socket.io": "*",
     "underscore": "*",
-    "fuzzy": "*"
+    "fuzzy": "*",
+    "nodemailer":"^2.7.0"
   }
 }

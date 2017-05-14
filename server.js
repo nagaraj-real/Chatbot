@@ -7,6 +7,9 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var _ = require('underscore')._;
 
+const crypto = require('crypto');
+var algorithm = 'aes-256-ctr';
+
 users = [];
 connections = [];
 
@@ -14,15 +17,33 @@ var adminmode = null;
 var aliveQuestion = null;
 var aliveuser = null;
 var clients = {};
+var savedhash = null;
 
 server.listen(process.env.port || 3000);
 
 console.log('server running');
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+    if (req.query.username && req.query.username.toUpperCase() === 'ADMIN' && req.query.hash && req.query.hash === savedhash) {
+        adminmode = true;
+        res.sendfile(__dirname + '/public/index.html');
+
+    } else {
+        res.sendFile(__dirname + '/public/index.html');
+    }
 
 });
+
+
+app.use(express.static('./public'));
+
+function genRandomString(username) {
+    var _username = username + "yarair";
+    var cipher = crypto.createCipher(algorithm, _username)
+    var crypted = cipher.update(_username, 'utf8', 'hex')
+    crypted += cipher.final('hex');
+    return crypted;
+}
 
 
 
@@ -31,8 +52,11 @@ io.sockets.on('connection', function (socket) {
     connections.push(socket);
     console.log('connected : %s sockets connected', connections.length);
 
-
-
+    if (adminmode) {
+        socket.emit('adminlogin', null);
+        socket.emit('appendView', { message: aliveQuestion, name: aliveuser });
+        socket.username = 'Admin';
+    }
 
     socket.on('disconnect', function (currentsocket) {
         connections.splice(connections.indexOf(currentsocket), 1);
@@ -45,7 +69,7 @@ io.sockets.on('connection', function (socket) {
 
 
 
-        if (data.initialemit) {
+        if (data.initialemit && !adminmode) {
             var returntext = data.message;
             socket.emit('appendView', { message: returntext, name: socket.username });
             var text = 'Thanks for providing your number. Please shoot your queries.';
@@ -73,6 +97,9 @@ io.sockets.on('connection', function (socket) {
                         socket.emit('appendView', { message: text, name: 'Bot' });
                     } else {
                         var text = 'Oh ho looks like I have lot to learn!!  Please wait for the admin to give you solution.';
+                        var hash = genRandomString(socket.username);
+                        questions.sendAdminMail(null, 'admin', hash);
+                        savedhash = hash;
                         socket.emit('appendView', { message: text, name: 'Bot' });
                         aliveQuestion = data.message.trim();
                         aliveuser = socket.username;
@@ -93,18 +120,12 @@ io.sockets.on('connection', function (socket) {
 
         if (true || users.indexOf(data.user) == -1) {
             users.push(data.user);
-
-            if (socket.username.toUpperCase() === 'ADMIN') {
-                adminmode = true;
-                socket.emit('appendView', { message: aliveQuestion, name: aliveuser });
-            } else {
-                if(users.length>1){
-                    socket.disconnect();
-                }
-                adminmode = false;
-                var text = 'Hi ' + socket.username + ' !!! Thanks for contacting Airway!!! Please enter your number';
-                socket.emit('appendView', { message: text, name: 'Bot' });
+            if (users.length > 1) {
+                socket.disconnect();
             }
+            adminmode = false;
+            var text = 'Hi ' + socket.username + ' !!! Thanks for contacting Airway!!! Please enter your number';
+            socket.emit('appendView', { message: text, name: 'Bot' });
             callback(true);
         }
     });

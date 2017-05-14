@@ -10,6 +10,11 @@ var fuzzy = require('fuzzy');
 
 var _ = require('underscore')._;
 
+var mailutil = require('./../util/mail');
+
+var fs = require('fs');
+var mailtemplate = fs.readFileSync('./mailtemplate.html');
+
 
 var db = mongoose.connect('mongodb://127.0.0.1:27017', null, function (err) {
     // Log Error
@@ -20,6 +25,41 @@ var db = mongoose.connect('mongodb://127.0.0.1:27017', null, function (err) {
         console.log("mongoose connected")
     }
 });
+
+
+var sendAdminMail = function (mailid, username, hash) {
+
+    var tomailid;
+
+    if (mailid)
+        tomailid = mailid;
+    else
+        tomailid = 'raj.nagaraj1990@gmail.com';
+
+    var mailOptions = {
+        from: '"Airway Customer Care ✉" <raj.nagaraj1990@gmail.com>', // sender address
+        to: tomailid,// list of receivers
+    };
+
+    var templateobj = {
+        subject: 'Customer Queries ✔',
+        text: '',
+        html: mailtemplate
+    };
+
+    var context = {
+        extlink: 'http://localhost:3000?username=' + username + '&hash=' + hash
+    }
+
+    mailutil.sendmail(mailOptions, templateobj, context, function (error, info) {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: ' + info.response);
+    });
+
+}
+
 
 
 var createQuestions = function (_question, _answer, callback) {
@@ -80,6 +120,8 @@ var fetchAnswers = function (_question, callback) {
 exports.createQuestions = createQuestions;
 
 exports.fetchAnswers = fetchAnswers;
+
+exports.sendAdminMail = sendAdminMail;
 
 
 

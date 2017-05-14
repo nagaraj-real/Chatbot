@@ -80,19 +80,25 @@
         }
     </style>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
+    <script type="text/javascript">
         var socket;
         var initialemit = true;
+        var savedhash = null;
         var adminmode = false;
 
+
         function onloadbody() {
+
             socket = io.connect({ 'force new connection': true });
+
+            socket.on('adminlogin', function () {
+                adminmode=true;
+                document.getElementById('userform').setAttribute("hidden", "");
+                document.getElementById('messageform').removeAttribute("hidden");
+                document.getElementById('phonenum').classList.add("hide");
+                document.getElementById('chatmessage').classList.remove("hide");
+            });
+
             socket.on('appendView', function (data) {
                 console.log(data);
                 var messages = document.getElementById('messages');
@@ -113,11 +119,14 @@
                     p.classList.add('humanchat')
                 }
                 messages.appendChild(p);
+                if (data.hash) {
+                    savedhash = data.hash;
+                }
             });
         }
 
         function sendmessage() {
-            if (initialemit) {
+            if (initialemit && !adminmode) {
                 var messagetext = document.getElementById('phonenum');
                 document.getElementById('phonenum').classList.add("hide");
                 document.getElementById('chatmessage').classList.remove("hide");
@@ -143,21 +152,12 @@
 
         function senduser() {
             var usertext = document.getElementById('username');
-            var messageform = document.getElementById('messageform');
-            var userform = document.getElementById('userform');
             console.log(usertext.value);
-            if (usertext.value.toUpperCase() === 'ADMIN') {
-                adminmode = true;
-                var messagetext = document.getElementById('phonenum');
-                document.getElementById('phonenum').classList.add("hide");
-                document.getElementById('chatmessage').classList.remove("hide");
-                initialemit = false;
-            }
             socket.emit('senduser', { user: usertext.value }, function (success) {
                 if (success) {
                     usertext.value = '';
-                    userform.setAttribute("hidden", "");
-                    messageform.removeAttribute("hidden");
+                    document.getElementById('userform').setAttribute("hidden", "");
+                    document.getElementById('messageform').removeAttribute("hidden");
                 }
                 return false;
             });
@@ -197,6 +197,8 @@
     </div>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js " integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa "
         crossorigin="anonymous "></script>
+
+    <script src="/socket.io/socket.io.js"></script>
 
 </body>
 

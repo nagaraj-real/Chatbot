@@ -7,6 +7,8 @@ var mongoose = require('mongoose');
 var User = require('./../models/user.model');
 
 
+
+
 // get all the users
 exports.getAllUsers = function (req, res) {
     User.find({}, function (err, users) {
