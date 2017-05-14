@@ -53,7 +53,7 @@ var sendAdminMail = function (mailid, username, hash) {
     };
 
     var context = {
-        extlink: 'http://localhost:3000?username=' + username + '&hash=' + hash
+        extlink: 'customercarechatbot.herokuapp.com?username=' + username + '&hash=' + hash
     }
 
     mailutil.sendmail(mailOptions, templateobj, context, function (error, info) {
