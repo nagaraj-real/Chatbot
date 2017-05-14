@@ -13,6 +13,8 @@ function onloadbody() {
         document.getElementById('userform').setAttribute("hidden", "");
         document.getElementById('messageform').removeAttribute("hidden");
         document.getElementById('phonenum').classList.add("hide");
+        document.getElementById('chatmessage').classList.remove("hide");
+        document.getElementById('chatmessage').removeAttribute("disabled");
     });
 
     socket.on('appendView', function (data) {
@@ -31,9 +33,7 @@ function onloadbody() {
         p.appendChild(span);
         if (data.name.trim().toUpperCase() === 'BOT' || data.name.trim().toUpperCase() === 'ADMIN') {
             p.classList.add('botchat');
-            if (data.name.trim().toUpperCase() === 'ADMIN') {
-                document.getElementById('chatmessage').removeAttribute("disabled");
-            }else if (data.name.trim().toUpperCase() === 'BOT' && data.adminmode) {
+           if (data.name.trim().toUpperCase() === 'BOT' && data.adminmode) {
                 document.getElementById('chatmessage').setAttribute("disabled", "");
             }
         } else {
