@@ -15,8 +15,13 @@ var mailutil = require('./../util/mail');
 var fs = require('fs');
 var mailtemplate = fs.readFileSync('./mailtemplate.html');
 
+var uri = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://ds027155.mlab.com:27155/chatbot';
+var options = {
+    user: 'zanmi',
+    pass: 'zanmi@123'
+};
 
-var db = mongoose.connect('mongodb://127.0.0.1:27017', null, function (err) {
+var db = mongoose.connect(uri, options, function (err) {
     // Log Error
     if (err) {
         console.error('Could not connect to MongoDB!');
