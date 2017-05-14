@@ -89,7 +89,7 @@ var createQuestions = function (_question, _answer, callback) {
 var matchQuestions = function (question, callback) {
     Questions.findOne({ 'questions': { $elemMatch: { question: { $eq: question }, answer: { $ne: '' } } } }, function (err, doc) {
         if (err)
-            callback(err);
+            callback(null);
         else {
             callback(doc);
         }
@@ -100,8 +100,8 @@ var matchQuestions = function (question, callback) {
 
 var fetchAnswers = function (_question, callback) {
     Questions.find({}, function (err, docs) {
-        if (err)
-            callback(err);
+        if (err || docs.length === 0)
+            callback(null);
         else {
             var questionAnswerArray = docs[0].questions;
             var questionsArray = [];
