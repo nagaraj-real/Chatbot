@@ -17,7 +17,7 @@ var adminmode = null;
 var aliveQuestion = null;
 var aliveuser = null;
 var clients = {};
-var savedhash = null;
+var savedhash = 'aes-256-ctr';
 
 server.listen(process.env.PORT || 3000);
 
@@ -27,7 +27,7 @@ app.get('/', function (req, res) {
     if (req.query.username && req.query.username.toUpperCase() === 'ADMIN' && req.query.hash && req.query.hash === savedhash) {
         adminmode = true;
         res.sendfile(__dirname + '/public/index.html');
-
+        savedhash='aes-256-ctr';
     } else {
         res.sendFile(__dirname + '/public/index.html');
     }
