@@ -5,8 +5,8 @@ var smtpConfig = {
     port: 465,
     secure: true, // use SSL
     auth: {
-        user: "zanmilearning@gmail.com",
-        pass: "zanmi@123"
+        user: process.env.G_USER_NAME,
+        pass: process.env.G_PASSWORD
     }
 };
 
