@@ -15,6 +15,9 @@ var mailutil = require('./../util/mail');
 var fs = require('fs');
 var mailtemplate = fs.readFileSync('./mailtemplate.html');
 
+process.env.M_USER_NAME='raj';
+process.env.M_PASSWORD='raj@123';
+
 var uri = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://ds027155.mlab.com:27155/chatbot';
 var options = {
     user: process.env.M_USER_NAME,
@@ -53,7 +56,7 @@ var sendAdminMail = function (mailid, username, hash) {
     };
 
     var context = {
-        extlink: 'http://customercarechatbot.herokuapp.com?username=' + username + '&hash=' + hash +'&num='+num
+        extlink: 'http://customercarechatbot.herokuapp.com?username=' + username + '&hash=' + hash
     }
 
     mailutil.sendmail(mailOptions, templateobj, context, function (error, info) {
