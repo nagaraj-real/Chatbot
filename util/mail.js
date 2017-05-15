@@ -1,5 +1,6 @@
 var nodemailer = require('nodemailer');
-
+process.env.G_USER_NAME = 'zanmilearning@gmail.com';
+process.env.G_PASSWORD = 'zanmi@1234';
 var smtpConfig = {
     host: 'smtp.gmail.com',
     port: 465,

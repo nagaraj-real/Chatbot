@@ -2,14 +2,16 @@
 var socket;
 var initialemit = true;
 var adminmode = false;
+var currentsockedid=null;
 
 
 function onloadbody() {
 
     socket = io.connect({ 'force new connection': true });
 
-    socket.on('adminlogin', function () {
+    socket.on('adminlogin', function (data) {
         adminmode = true;
+        currentsockedid = data.currentsockedid;
         document.getElementById('userform').setAttribute("hidden", "");
         document.getElementById('messageform').removeAttribute("hidden");
         document.getElementById('phonenum').classList.add("hide");
@@ -24,13 +26,13 @@ function onloadbody() {
         var div = document.createElement('div');
 
         if (data.name.trim().toUpperCase() === 'BOT') {
-            div.classList.remove('botavatar','humanavatar','adminavatar');
+            div.classList.remove('botavatar', 'humanavatar', 'adminavatar');
             div.classList.add('botavatar');
-        }else if(data.name.trim().toUpperCase() === 'ADMIN'){
-            div.classList.remove('botavatar','humanavatar','adminavatar');
+        } else if (data.name.trim().toUpperCase() === 'ADMIN') {
+            div.classList.remove('botavatar', 'humanavatar', 'adminavatar');
             div.classList.add('adminavatar');
-        }else{
-            div.classList.remove('botavatar','humanavatar','adminavatar');
+        } else {
+            div.classList.remove('botavatar', 'humanavatar', 'adminavatar');
             div.classList.add('humanavatar');
         }
         p.appendChild(div);
@@ -70,7 +72,7 @@ function sendmessage() {
         var messagetext = document.getElementById('chatmessage');
         var data = messagetext.value;
         console.log(data);
-        socket.emit('HumanMessage', { message: data });
+        socket.emit('HumanMessage', { message: data ,currentsockedid:currentsockedid});
         messagetext.value = '';
         return false;
     }
