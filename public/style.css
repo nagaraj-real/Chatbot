@@ -1,74 +1,96 @@
+div.messagediv {
+    background-image: 'assets/bgimage.jpg'
+}
 
-        div.messagediv {
-            background-image: 'assets/bgimage.jpg'
-        }
+div.messagediv p {
+    padding: 6px 12px;
+    margin: 10px 0px 10px 0px;
+}
 
-        div.messagediv p {
-            padding: 6px 12px;
-            margin: 10px 0px 10px 0px;
-        }
+div.messagediv p.botchat {
+    float: left;
+    width: 100%
+}
 
-        div.messagediv p.botchat {
-            float: left;
-            width: 100%
-        }
+div.messagediv p.humanchat {
+    float: right;
+}
 
-        div.messagediv p.humanchat {
-            float: right;
-        }
 
-        div.messagediv p span.namespan {
-            font-weight: bold;
-        }
+div.messagediv p.botchat span.chatspan {
+    padding: 10px;
+    background: #ccc;
+    margin: 10px;
+    border-radius: 15px;
+    color: #484545;
+    display: inline-block;
+    width: 40%;
+    word-wrap: break-word;
+}
 
-        div.messagediv p.botchat span.chatspan {
-            padding: 10px;
-            background: #ccc;
-            margin: 10px;
-            border-radius: 15px;
-            color: #484545;
-            display: inline-block;
-            width: 40%;            
-            word-wrap: break-word;
-        }
+div.messagediv p.humanchat span.chatspan {
+    padding: 10px;
+    background: #bf4444;
+    margin: 10px;
+    border-radius: 15px;
+    color: white;
+    display: inline-block;
+    word-wrap: break-word;
+}
 
-        div.messagediv p.humanchat span.chatspan {
-            padding: 10px;
-            background: #bf4444;
-            margin: 10px;
-            border-radius: 15px;
-            color: white;
-            display: inline-block;          
-            word-wrap: break-word;
-        }
+textarea {
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 16px !important;
+}
 
-        textarea {
-            border: none !important;
-            box-shadow: none !important;
-            font-size: 16px !important;
-        }
+.phonetext {
+    width: 200px;
+    margin: 10px;
+}
 
-        .phonetext {
-            width: 200px;
-            margin: 10px;
-        }
+.username {
+    width: 200px;
+}
 
-        .username {
-            width: 200px;
-        }
+.glyphicon-inbox {
+    color: #d9534f;
+    font-size: 15px;
+    padding: 5px;
+}
 
-        .glyphicon-inbox {
-            color: #d9534f;
-            font-size: 15px;
-            padding: 5px;
-        }
+.btn-start {
+    margin-top: 20px;
+}
 
-        .btn-start {
-            margin-top: 20px;
-        }
+.btn-send {
+    margin-top: 20px;
+    margin-left: 10px;
+}
 
-        .btn-send {
-            margin-top: 20px;
-            margin-left: 10px;
-        }
+div.botavatar {
+    display: inline-block;
+    background-image:url('botavatar.png');
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    vertical-align: middle;
+}
 
+div.adminavatar {
+    display: inline-block;
+    background-image:url('adminavatar.png');
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    vertical-align: middle;
+}
+
+div.humanavatar {
+    display: inline-block;
+    background-image:url('humanavatar.png');
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    vertical-align: middle;
+}

@@ -21,11 +21,19 @@ function onloadbody() {
         console.log(data);
         var messages = document.getElementById('messages');
         var p = document.createElement('p');
-        var span = document.createElement('span');
-        var node = document.createTextNode(data.name + ' : ');
-        span.appendChild(node);
-        span.classList.add('namespan');
-        p.appendChild(span);
+        var div = document.createElement('div');
+
+        if (data.name.trim().toUpperCase() === 'BOT') {
+            div.classList.remove('botavatar','humanavatar','adminavatar');
+            div.classList.add('botavatar');
+        }else if(data.name.trim().toUpperCase() === 'ADMIN'){
+            div.classList.remove('botavatar','humanavatar','adminavatar');
+            div.classList.add('adminavatar');
+        }else{
+            div.classList.remove('botavatar','humanavatar','adminavatar');
+            div.classList.add('humanavatar');
+        }
+        p.appendChild(div);
         var span = document.createElement('span');
         var node = document.createTextNode(data.message);
         span.classList.add('chatspan');
@@ -36,8 +44,8 @@ function onloadbody() {
             if (data.name.trim().toUpperCase() === 'BOT' && data.adminmode) {
                 document.getElementById('chatmessage').setAttribute("disabled", "");
             } else if (data.name.trim().toUpperCase() === 'ADMIN') {
-                if(document.getElementById('chatmessage').hasAttribute("disabled"))
-                document.getElementById('chatmessage').removeAttribute("disabled");
+                if (document.getElementById('chatmessage').hasAttribute("disabled"))
+                    document.getElementById('chatmessage').removeAttribute("disabled");
             }
         } else {
             p.classList.add('humanchat')
