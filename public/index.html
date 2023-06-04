@@ -1,0 +1,55 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Airway Customer Care</title>
+    <link rel="icon" type="image/png" href="favicon.png" sizes="64x64" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+        crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="main.js"></script>
+
+
+</head>
+
+<body class="container" onload="onloadbody()">
+
+    <div>
+        <h3 class="text-center">Airway Customer Care</h3>
+        <div class="row panel panel-default">
+            <div class="panel-heading"><span class="glyphicon glyphicon-inbox"></span>CHAT BOT</div>
+            <div class="col-md-12 panel-body">
+                <div class=" chat" id="chat">
+                    <form id="messageform" onsubmit="return sendmessage();" hidden>
+                        <div class="form-group">
+                            <div class="messagediv">
+                                <div class="messages" id="messages">
+                                </div>
+                                <textarea class="form-control hide" id="chatmessage" placeholder="Type here!"></textarea>
+                                <input class="form-control phonetext" id="phonenum" type="text" placeholder="Enter your mobile number" maxlength='10' pattern="\+?\d[\d -]{8,12}\d"
+                                    title="Please enter valid phone number" />
+                            </div>
+
+                            <button type="submit " class="btn btn-danger btn-send">Send <span class="glyphicon glyphicon-send"><span></button>
+                        </div>
+                    </form>
+                    <form id="userform" onsubmit="senduser();return false;">
+                        <input type="text" class="form-control username" id="username" placeholder="Enter your username" />
+
+                        <button type="submit" class="btn btn-danger btn-start">Start</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+</body>
+
+</html>

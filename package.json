@@ -2,7 +2,7 @@
   "name": "chatbot",
   "version": "1.0.0",
   "description": "Chatbot app which uses socket.io",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server"
   },
@@ -12,7 +12,11 @@
   "author": "Nagarajan Ramasamy",
   "license": "ISC",
   "dependencies": {
-    "express":"*",
-    "socket.io":"*"
+    "express": "*",
+    "mongoose": "*",
+    "socket.io": "*",
+    "underscore": "*",
+    "fuzzy": "*",
+    "nodemailer":"^2.7.0"
   }
 }
